@@ -14,20 +14,18 @@ Main Features
 * Interface Management
 
 
-使用说明
+Instruction
 -----------------------------------
 
-* 导入项目根目录下:db.sql文件到mysql数据库
-* 导入项目到Eclipse或Idea.
-* 修改数据库配置文件jdbc.properties中的账号密码.
-* 修改application.properties 中的jdbc相关配置 
-* 配置maven命令:spring-boot:run启动项目,管理员yuezhiyue@youxin.com 密码:111111
-* 脚本执行绝对路径 : /home/hdfs/zuodong/dp/   另外在DataPlatform目录下有脚本源码的备份 
-* 由于涉及到Hive相关操作,项目服务器需要hdfs用户启动 
+* Create database and tables: execute db.sql
+* Change the configuration in jdbc.properties file
+* Change application.properties 
+* Start command : spring-boot:run 
+* Scripts path : DataPlatform/scripts
+* Because of the operation with Hive/HDFS, the server need to be started using hdfs user. 
 
 
-
-平台目录结构说明
+Project Structure
 -----------------------------------
 ```
 ├─main
