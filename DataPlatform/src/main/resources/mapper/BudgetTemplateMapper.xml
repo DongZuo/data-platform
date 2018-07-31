@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxb.cms.dao.BudgetTemplateMapper">
+    <!-- 搜索预算模板 -->
+    <select id="search" resultType="com.yxb.cms.domain.dto.SearchedBudget">
+        SELECT
+            id, title,type, status, remark, creator, create_date
+        FROM budget_template
+        WHERE 1=1
+        <if test="type != null and type != ''">
+        AND type = #{type}
+        </if>
+        <if test="status != null and status != ''">
+        AND status = #{status}
+        </if>
+        <choose>
+          <when test="t_type=='创建时间'">AND create_date BETWEEN #{begin} AND #{end}</when>
+          <when test="t_type=='完成时间'">AND finish_date BETWEEN #{begin} AND #{end}</when>
+          <when test="t_type=='起始时间'">AND begin_date BETWEEN #{begin} AND #{end}</when>
+        </choose>
+        <!-- AND (creator = #{username} or is_public='公开') -->
+    </select>
+    <select id="publicBudget" resultType="com.yxb.cms.domain.dto.PublicBudget">
+        SELECT id, title
+        FROM budget_template
+        WHERE is_public='公开' AND status='已完成'
+    </select>
+
+    <select id="selectById" resultType="com.yxb.cms.model.BudgetTemplate">
+        SELECT *
+        FROM budget_template
+        WHERE id=#{id}
+    </select>
+    <select id="selectByKey" resultType="com.yxb.cms.model.BudgetTemplate">
+        SELECT *
+        FROM budget_template
+        WHERE key_=#{newKey}
+    </select>
+
+    <select id="countById" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM budget_template
+        WHERE id=#{id}
+    </select>
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="value.id">
+        INSERT INTO budget_template
+        (id, ref_id, title, creator, create_date, finish_date, type, status, is_public, begin_date, cycle, unit, advance_type, advance_amount, repayment_type, repayment_amount, remark)
+        VALUES
+        (#{value.id}, #{value.ref_id}, #{value.title}, #{value.creator}, #{value.create_date}, #{value.finish_date}, #{value.type}, #{value.status}, #{value.is_public}, #{value.begin_date}, #{value.cycle}, #{value.unit} , #{value.advance_type}, #{value.advance_amount}, #{value.repayment_type}, #{value.repayment_amount}, #{value.remark})
+    </insert>
+
+    <update id="update">
+        UPDATE budget_template
+        <set>
+            <if test="value.ref_id != null">ref_id=#{value.ref_id},</if>
+            <if test="value.title != null">title=#{value.title},</if>
+            <if test="value.creator != null">creator=#{value.creator},</if>
+            <if test="value.create_date != null">create_date=#{value.create_date},</if>
+            <if test="value.finish_date != null">finish_date=#{value.finish_date},</if>
+            <if test="value.type != null">type=#{value.type},</if>
+            <if test="value.status != null">status=#{value.status},</if>
+            <if test="value.is_public != null">is_public=#{value.is_public},</if>
+            <if test="value.begin_date != null">begin_date=#{value.begin_date},</if>
+            <if test="value.cycle != null">cycle=#{value.cycle},</if>
+            <if test="value.unit != null">unit=#{value.unit},</if>
+            <if test="value.advance_type != null">advance_type=#{value.advance_type},</if>
+            <if test="value.advance_amount != null">advance_amount=#{value.advance_amount},</if>
+            <if test="value.repayment_type != null">repayment_type=#{value.repayment_type},</if>
+            <if test="value.repayment_amount != null">repayment_amount=#{value.repayment_amount},</if>
+            <if test="value.remark != null">remark=#{value.remark}</if>
+        </set>
+        WHERE id=#{value.id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM budget_template WHERE key_=#{value.newKey}
+    </delete>
+
+    <insert  id="copyTemplate">
+        INSERT INTO budget_template
+        SELECT null,#{value.newKey}, ref_id, concat(#{value.userName},'_',CURDATE(),'_',`status`) title, creator, create_date, finish_date, type, status, is_public, begin_date, cycle, unit, advance_type, advance_amount, repayment_type, repayment_amount, remark
+        FROM budget_template WHERE key_=#{value.oldKey}
+    </insert>
+</mapper>

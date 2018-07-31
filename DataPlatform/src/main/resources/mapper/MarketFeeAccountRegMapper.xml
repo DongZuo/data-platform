@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.input.MarketFeeAccountRegMapper" >
+  <resultMap id="BaseResultMap" type="com.yxb.cms.model.input.MarketFeeAccountReg" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="time_" property="time" jdbcType="DATE" />
+    <result column="trade_id" property="tradeId" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="banlance" property="banlance" jdbcType="DECIMAL" />
+    <result column="market_reg_amount" property="marketRegAmount" jdbcType="DECIMAL" />
+    <result column="operation_reg_amount" property="operationRegAmount" jdbcType="DECIMAL" />
+    <result column="wealth_reg_amount" property="wealthRegAmount" jdbcType="DECIMAL" />
+    <result column="other_reg_amount" property="otherRegAmount" jdbcType="DECIMAL" />
+    <result column="customer_reg_amount" property="customerRegAmount" jdbcType="DECIMAL" />
+    <result column="data_reg_amount" property="dataRegAmount" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, time_, trade_id, amount, banlance, market_reg_amount, operation_reg_amount, wealth_reg_amount, 
+    other_reg_amount,customer_reg_amount,data_reg_amount
+  </sql>
+  <select id="selectListByPrimaryKey" resultMap="BaseResultMap" parameterType="java.util.Map" >
+	select p.pointLogId as id,p.time_,substring(p.notes,5,21) trade_id,p.amount,p.banlance,m.market_reg_amount,m.operation_reg_amount,
+	m.wealth_reg_amount,m.other_reg_amount,m.customer_reg_amount,m.data_reg_amount 
+		from renrendai_0513.point_log_special p
+	left join data_bi.market_fee_account_reg m
+	on p.pointLogId = m.id
+	where user_ = 136682 
+	and operation_ = 0
+	and p.pointLogId not in(300000170,
+	300000169,
+	300000168,
+	300000167,
+	300000166,
+	300000165,
+	300000164,
+	300000163,
+	300000162,
+	300000161,
+	300000160,
+	300000159)
+     <if test="pointLogId != null and pointLogId != ''" >
+        and p.pointLogId = #{pointLogId,jdbcType=INTEGER}
+      </if>
+      <if test="dept != null and dept != 'all' and dept != ''" >
+        and ${dept} >0
+      </if>
+      and p.time_ BETWEEN #{dateStart,jdbcType=DATE} AND #{dateEnd,jdbcType=DATE}
+      order by p.pointLogId desc
+      limit #{offset,jdbcType=INTEGER}, #{rows,jdbcType=INTEGER}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.util.Map" >
+   select p.pointLogId as id,p.time_,substring(p.notes,5,21) trade_id,p.amount,p.banlance,m.market_reg_amount,m.operation_reg_amount,
+   m.wealth_reg_amount,m.other_reg_amount,m.customer_reg_amount,m.data_reg_amount  
+		from renrendai_0513.point_log_special p
+	left join data_bi.market_fee_account_reg m
+	on p.pointLogId = m.id
+	where user_ = 136682 
+	and operation_ = 0
+	and p.pointLogId not in(300000170,
+	300000169,
+	300000168,
+	300000167,
+	300000166,
+	300000165,
+	300000164,
+	300000163,
+	300000162,
+	300000161,
+	300000160,
+	300000159)
+     <if test="pointLogId != null and pointLogId != ''" >
+        and p.pointLogId = #{pointLogId,jdbcType=INTEGER}
+      </if>
+      limit 1
+  </select>
+    <select id="getCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+    select count(*)
+		from renrendai_0513.point_log_special p
+	left join data_bi.market_fee_account_reg m
+	on p.pointLogId = m.id
+	where user_ = 136682 
+	and operation_ = 0
+	and p.pointLogId not in(300000170,
+	300000169,
+	300000168,
+	300000167,
+	300000166,
+	300000165,
+	300000164,
+	300000163,
+	300000162,
+	300000161,
+	300000160,
+	300000159)
+     <if test="pointLogId != null and pointLogId != ''" >
+        and p.pointLogId = #{pointLogId,jdbcType=INTEGER}
+      </if>
+      <if test="dept != null and dept != 'all' and dept != ''" >
+        and ${dept} >0
+      </if>
+      and p.time_ BETWEEN #{dateStart,jdbcType=DATE} AND #{dateEnd,jdbcType=DATE}
+      order by p.pointLogId desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from data_bi.market_fee_account_reg
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yxb.cms.model.input.MarketFeeAccountReg" >
+    insert into data_bi.market_fee_account_reg (id, time_, trade_id, 
+      amount, banlance, market_reg_amount, 
+      operation_reg_amount, wealth_reg_amount,customer_reg_amount,data_reg_amount,other_reg_amount
+      )
+    values (#{id,jdbcType=INTEGER}, #{time,jdbcType=TIMESTAMP}, #{tradeId,jdbcType=INTEGER}, 
+      #{amount,jdbcType=DECIMAL}, #{banlance,jdbcType=DECIMAL}, #{marketRegAmount,jdbcType=DECIMAL}, 
+      #{operationRegAmount,jdbcType=DECIMAL}, #{wealthRegAmount,jdbcType=DECIMAL},
+      #{customerRegAmount,jdbcType=DECIMAL},#{dataRegAmount,jdbcType=DECIMAL}, #{otherRegAmount,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yxb.cms.model.input.MarketFeeAccountReg" >
+    insert into data_bi.market_fee_account_reg
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="time != null" >
+        time_,
+      </if>
+      <if test="tradeId != null" >
+        trade_id,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="banlance != null" >
+        banlance,
+      </if>
+      <if test="marketRegAmount != null" >
+        market_reg_amount,
+      </if>
+      <if test="operationRegAmount != null" >
+        operation_reg_amount,
+      </if>
+      <if test="wealthRegAmount != null" >
+        wealth_reg_amount,
+      </if>
+      <if test="customerRegAmount != null" >
+        customer_reg_amount,
+      </if>
+      <if test="dataRegAmount != null" >
+        data_reg_amount,
+      </if>
+      <if test="otherRegAmount != null" >
+        other_reg_amount,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="time != null" >
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeId != null" >
+        #{tradeId,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="banlance != null" >
+        #{banlance,jdbcType=DECIMAL},
+      </if>
+      <if test="marketRegAmount != null" >
+        #{marketRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="operationRegAmount != null" >
+        #{operationRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="wealthRegAmount != null" >
+        #{wealthRegAmount,jdbcType=DECIMAL},
+      </if>
+       <if test="customerRegAmount != null" >
+        #{customerRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="dataRegAmount != null" >
+        #{dataRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="otherRegAmount != null" >
+        #{otherRegAmount,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yxb.cms.model.input.MarketFeeAccountReg" >
+    update data_bi.market_fee_account_reg
+    <set >
+      <if test="time != null" >
+        time_ = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeId != null" >
+        trade_id = #{tradeId,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="banlance != null" >
+        banlance = #{banlance,jdbcType=DECIMAL},
+      </if>
+      <if test="marketRegAmount != null" >
+        market_reg_amount = #{marketRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="operationRegAmount != null" >
+        operation_reg_amount = #{operationRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="wealthRegAmount != null" >
+        wealth_reg_amount = #{wealthRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="customerRegAmount != null" >
+        customer_reg_amount = #{customerRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="dataRegAmount != null" >
+        data_reg_amount = #{dataRegAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="otherRegAmount != null" >
+        other_reg_amount = #{otherRegAmount,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yxb.cms.model.input.MarketFeeAccountReg" >
+    update data_bi.market_fee_account_reg
+    set time_ = #{time,jdbcType=TIMESTAMP},
+      trade_id = #{tradeId,jdbcType=INTEGER},
+      amount = #{amount,jdbcType=DECIMAL},
+      banlance = #{banlance,jdbcType=DECIMAL},
+      market_reg_amount = #{marketRegAmount,jdbcType=DECIMAL},
+      operation_reg_amount = #{operationRegAmount,jdbcType=DECIMAL},
+      wealth_reg_amount = #{wealthRegAmount,jdbcType=DECIMAL},
+      customer_reg_amount = #{customerRegAmount,jdbcType=DECIMAL},
+      data_reg_amount = #{dataRegAmount,jdbcType=DECIMAL},
+      other_reg_amount = #{otherRegAmount,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

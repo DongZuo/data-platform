@@ -1,0 +1,1890 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.input.SemStatisticsMapper" >
+  <resultMap id="BaseResultMap" type="com.yxb.cms.model.input.SemStatistics" >
+    <id column="statistics_id" property="statisticsId" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="category" property="category" jdbcType="VARCHAR" />
+    <result column="platform" property="platform" jdbcType="VARCHAR" />
+    <result column="charge_type" property="chargeType" jdbcType="VARCHAR" />
+    <result column="count_time" property="countTime" jdbcType="TIMESTAMP" />
+    <result column="total_reg_user" property="totalRegUser" jdbcType="INTEGER" />
+    <result column="total_open_user" property="totalOpenUser" jdbcType="INTEGER" />
+    <result column="total_reg_lender" property="totalRegLender" jdbcType="INTEGER" />
+    <result column="lender_convert" property="lenderConvert" jdbcType="DECIMAL" />
+    <result column="total_lender" property="totalLender" jdbcType="INTEGER" />
+    <result column="total_lender_money" property="totalLenderMoney" jdbcType="DECIMAL" />
+    <result column="avg_lender_money" property="avgLenderMoney" jdbcType="DECIMAL" />
+    <result column="total_pay_user" property="totalPayUser" jdbcType="INTEGER" />
+    <result column="total_pay_money" property="totalPayMoney" jdbcType="DECIMAL" />
+    <result column="avg_pay_money" property="avgPayMoney" jdbcType="DECIMAL" />
+    <result column="fund_money" property="fundMoney" jdbcType="DECIMAL" />
+    <result column="fund_user" property="fundUser" jdbcType="INTEGER" />
+    <result column="sum_money" property="sumMoney" jdbcType="DECIMAL" />
+    <result column="sum_user" property="sumUser" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    statistics_id, description, category, platform, charge_type, count_time, total_reg_user, total_open_user,
+    total_reg_lender, lender_convert, total_lender, total_lender_money, avg_lender_money, 
+    total_pay_user, total_pay_money, avg_pay_money,fund_money,fund_user,sum_money,sum_user
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from sem_statistics
+    where statistics_id = #{statisticsId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from sem_statistics
+    where date(count_time) = CURDATE()
+  </delete>
+  <delete id="deleteByPrimaryKeyEnd" parameterType="java.lang.Integer" >
+    delete from sem_statistics
+    where date(count_time) = DATE_SUB(CURDATE(),INTERVAL 1 DAY)
+  </delete>
+  <delete id="deleteByCountTime" parameterType="java.lang.Integer" >
+    delete from sem_statistics
+    where SUBSTR(count_time,12,2) = HOUR(now()) and Date(count_time) = CURDATE()
+  </delete>
+  <insert id="insert" parameterType="com.yxb.cms.model.input.SemStatistics" >
+    insert into sem_statistics (statistics_id, description, category, 
+      platform, charge_type, count_time, 
+      total_reg_user, total_reg_lender, lender_convert, 
+      total_lender, total_lender_money, avg_lender_money, 
+      total_pay_user, total_pay_money, avg_pay_money
+      )
+    values (#{statisticsId,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, #{category,jdbcType=VARCHAR}, 
+      #{platform,jdbcType=VARCHAR}, #{chargeType,jdbcType=VARCHAR}, #{countTime,jdbcType=TIMESTAMP}, 
+      #{totalRegUser,jdbcType=INTEGER}, #{totalRegLender,jdbcType=INTEGER}, #{lenderConvert,jdbcType=DECIMAL}, 
+      #{totalLender,jdbcType=INTEGER}, #{totalLenderMoney,jdbcType=DECIMAL}, #{avgLenderMoney,jdbcType=DECIMAL}, 
+      #{totalPayUser,jdbcType=INTEGER}, #{totalPayMoney,jdbcType=DECIMAL}, #{avgPayMoney,jdbcType=DECIMAL}
+      )
+  </insert>
+<insert id="insertSelective" parameterType="com.yxb.cms.model.input.SemStatistics" >
+INSERT into data_bi.sem_statistics(count_time,description,category,platform,charge_type,total_reg_user,total_open_user,total_reg_lender,lender_convert,total_lender,
+total_lender_money,avg_lender_money,total_pay_user,total_pay_money,avg_pay_money,source_name)
+SELECT count_time,description,category,platform,charge_type,total_reg_user,total_open_user,total_reg_lender,lender_convert,total_lender,
+total_lender_money,avg_lender_money,total_pay_user,total_pay_money,avg_pay_money,source_name from data_bi.sem_statistics_day
+</insert>
+<delete id="deleteByPrimaryKeyDay" parameterType="java.lang.Integer" >
+    delete from sem_statistics_day where 1 = 1
+</delete>
+<insert id="insertSelectiveEnd" parameterType="com.yxb.cms.model.input.SemStatistics" >
+INSERT into data_bi.sem_statistics(count_time,description,category,platform,charge_type,total_reg_user,total_open_user,total_lender,
+total_lender_money,avg_lender_money,total_pay_user,total_pay_money,avg_pay_money,source_name)
+select
+   b.注册时间 统计时间,
+   a.渠道描述,
+   a.渠道分类,
+   a.平台,
+   a.类型,
+   b.注册人数,
+   b.开户数,
+   b.当日理财人数,
+   b.当日理财金额,
+   convert(b.当日理财金额 /b.当日理财人数,decimal(18,2)) 人均理财金额,
+   b.当日充值人数,
+   b.当日充值金额,
+   convert(b.当日充值金额 /b.当日充值人数,decimal(18,2)) 人均充值金额,
+   b.abbreviation
+ from
+(
+ select
+   u.id 渠道ID,
+   u.description 渠道描述,
+   u.parentCategory 渠道分类,
+   u.platform 平台,
+   u.charge_type 类型
+ from
+   data_bi.tb_utm_source u
+ ) a
+ right join
+ (
+ select
+   u.id 渠道ID,
+	 u.abbreviation,
+   date_format(us.registerTime, '%Y-%m-%d %H:00:00') 注册时间,
+   count(distinct us.userId) 注册人数,
+   count(distinct case when us.account_id is null then 0 else us.account_id end) 开户数,
+   count(distinct case when us.operation_ = 0 and date(us.registerTime) = date(us.time_) then us.userId else null end) 当日充值人数,
+   count(distinct case when us.operation_ in (10, 30, 33, 53, 54,101,107) and date(us.registerTime) = date(us.time_) then us.userId else null end) 当日理财人数,
+   round(sum(distinct case when us.operation_ = 0 and date(us.registerTime) = date(us.time_) then us.amount else 0 end)) 当日充值金额,
+   round(sum(distinct case when us.operation_ in (10, 30, 33, 53, 54,101,107) and date(us.registerTime) = date(us.time_) then us.amount else 0 end)) 当日理财金额
+ from
+   ((select
+     u.userId,
+     u.intention,
+     u.utmSource,
+		 uc.platform,
+	   u.account_id,
+		 CASE
+		 WHEN (uc.platform = 'IOS' OR uc.platform = 'ANDROID') THEN uc.channel
+		 ELSE u.promotion END as promotion,
+     -- ifnull(u.promotion,uc.channel) promotion,
+     u.registerTime,
+     p.amount,
+     p.operation_,
+     p.time_
+   from
+     renrendai_0513.v_user_ u
+     LEFT JOIN
+     renrendai_0513.point_log p
+   on
+     u.userId = p.user_
+     and p.amount > 0
+	 left join
+	 data_bi.user_channel uc
+	 on u.userId = uc.userId
+   where
+     date(u.registerTime) = DATE_SUB(CURDATE(),INTERVAL 1 DAY)
+     and u.invite_uid is null
+     and locate('.',u.mobile)=0
+)us
+LEFT JOIN data_bi.tb_utm_source u on us.promotion = u.abbreviation)
+ group by
+   渠道ID,注册时间
+ ) b
+ on a.渠道ID = b.渠道ID
+GROUP BY 统计时间,渠道描述
+</insert>
+<insert id="insertSelectiveDay" parameterType="com.yxb.cms.model.input.SemStatistics" >
+INSERT into data_bi.sem_statistics_day(count_time,description,category,platform,charge_type,total_reg_user,total_open_user,total_lender,
+total_lender_money,avg_lender_money,total_pay_user,total_pay_money,avg_pay_money,source_name)
+select
+   b.注册时间 统计时间,
+   a.渠道描述,
+   a.渠道分类,
+   a.平台,
+   a.类型,
+   b.注册人数,
+   b.开户数,
+   b.当日理财人数,
+   b.当日理财金额,
+   convert(b.当日理财金额 /b.当日理财人数,decimal(18,2)) 人均理财金额,
+   b.当日充值人数,
+   b.当日充值金额,
+   convert(b.当日充值金额 /b.当日充值人数,decimal(18,2)) 人均充值金额,
+   b.abbreviation
+ from
+(
+ select
+   u.id 渠道ID,
+   u.description 渠道描述,
+   u.parentCategory 渠道分类,
+   u.platform 平台,
+   u.charge_type 类型
+ from
+   data_bi.tb_utm_source u
+ ) a
+ right join
+ (
+ select
+   u.id 渠道ID,
+	 u.abbreviation,
+   date_format(us.registerTime, '%Y-%m-%d %H:00:00') 注册时间,
+   count(distinct us.userId) 注册人数,
+   count(distinct case when us.account_id is null then 0 else us.account_id end) 开户数,
+   count(distinct case when us.operation_ = 0 and date(us.registerTime) = date(us.time_) then us.userId else null end) 当日充值人数,
+   count(distinct case when us.operation_ in (10, 30, 33, 53, 54,101,107) and date(us.registerTime) = date(us.time_) then us.userId else null end) 当日理财人数,
+   round(sum(distinct case when us.operation_ = 0 and date(us.registerTime) = date(us.time_) then us.amount else 0 end)) 当日充值金额,
+   round(sum(distinct case when us.operation_ in (10, 30, 33, 53, 54,101,107) and date(us.registerTime) = date(us.time_) then us.amount else 0 end)) 当日理财金额
+ from
+   ((select
+     u.userId,
+     u.intention,
+     u.utmSource,
+		 uc.platform,
+	   u.account_id,
+		 CASE
+		 WHEN (uc.platform = 'IOS' OR uc.platform = 'ANDROID') THEN uc.channel
+		 ELSE u.promotion END as promotion,
+     -- ifnull(u.promotion,uc.channel) promotion,
+     u.registerTime,
+     p.amount,
+     p.operation_,
+     p.time_
+   from
+     renrendai_0513.v_user_ u
+     LEFT JOIN
+     renrendai_0513.point_log p
+   on
+     u.userId = p.user_
+     and p.amount > 0
+	 left join
+	 data_bi.user_channel uc
+	 on u.userId = uc.userId
+   where
+     u.registerTime > CURDATE()
+     and u.invite_uid is null
+     and locate('.',u.mobile)=0
+)us
+LEFT JOIN data_bi.tb_utm_source u on us.promotion = u.abbreviation)
+ group by
+   渠道ID,注册时间
+ ) b
+ on a.渠道ID = b.渠道ID
+GROUP BY 统计时间,渠道描述
+</insert>  
+  <insert id="insertSelective2" parameterType="com.yxb.cms.model.input.SemStatistics" >
+INSERT into data_bi.sem_statistics(count_time,description,category,platform,charge_type,
+fund_money,fund_user
+)
+   select
+   d.注册时间 统计时间,
+   c.渠道描述,
+   c.渠道分类,
+   c.平台,
+   c.类型,
+   d.当日申购金额,
+   d.当日申购人数
+ from
+(
+ select
+   u.id 渠道ID,
+   u.description 渠道描述,
+   u.category 渠道分类,
+   u.platform 平台,
+   u.charge_type 类型
+ from
+   data_bi.tb_utm_source u
+ ) c
+ right join
+ (
+ select
+   u.id 渠道ID,
+   date_format(fs.registerTime, '%Y-%m-%d %H:00:00') 注册时间,
+   round(sum(case when fs.status in(0,1,3) and fs.optype = 1  and date(fs.registerTime) = date(FROM_UNIXTIME(fs.ctime)) then fs.sum else 0 end)) 当日申购金额,
+   count(distinct case when fs.status in (0,1,3) and fs.optype = 1 and date(fs.registerTime) = date(FROM_UNIXTIME(fs.ctime)) then fs.userId else null end) 当日申购人数
+ from
+   ((select
+     u.userId,
+     u.utmSource,
+     u.promotion,
+     u.registerTime,
+     f.ctime,
+	 f.sum,
+	 f.optype,
+     f.`status` status
+   from
+     renrendai_0513.v_user_ u
+     LEFT JOIN
+		renrendai_0513.v_fund_account a
+	 on
+		u.userId = a.userId
+	 LEFT JOIN
+    renrendai_0513.fund_trade_log f
+	 ON
+		a.id = f.accountId
+   where
+		date(u.registerTime) = CURDATE()
+) fs
+LEFT JOIN data_bi.tb_sub_utm_source s on fs.promotion = s.base_utm_source)
+LEFT JOIN data_bi.tb_utm_source u on u.id = s.parent_id
+ group by 渠道ID,注册时间
+ )d
+ on c.渠道ID = d.渠道ID
+GROUP BY 统计时间,渠道描述,渠道分类,平台,类型
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yxb.cms.model.input.SemStatistics" >
+    update sem_statistics
+    <set >
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null" >
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="platform != null" >
+        platform = #{platform,jdbcType=VARCHAR},
+      </if>
+      <if test="chargeType != null" >
+        charge_type = #{chargeType,jdbcType=VARCHAR},
+      </if>
+      <if test="countTime != null" >
+        count_time = #{countTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="totalRegUser != null" >
+        total_reg_user = #{totalRegUser,jdbcType=INTEGER},
+      </if>
+      <if test="totalRegLender != null" >
+        total_reg_lender = #{totalRegLender,jdbcType=INTEGER},
+      </if>
+      <if test="lenderConvert != null" >
+        lender_convert = #{lenderConvert,jdbcType=DECIMAL},
+      </if>
+      <if test="totalLender != null" >
+        total_lender = #{totalLender,jdbcType=INTEGER},
+      </if>
+      <if test="totalLenderMoney != null" >
+        total_lender_money = #{totalLenderMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="avgLenderMoney != null" >
+        avg_lender_money = #{avgLenderMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPayUser != null" >
+        total_pay_user = #{totalPayUser,jdbcType=INTEGER},
+      </if>
+      <if test="totalPayMoney != null" >
+        total_pay_money = #{totalPayMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="avgPayMoney != null" >
+        avg_pay_money = #{avgPayMoney,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where statistics_id = #{statisticsId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yxb.cms.model.input.SemStatistics" >
+    update sem_statistics
+    set description = #{description,jdbcType=VARCHAR},
+      category = #{category,jdbcType=VARCHAR},
+      platform = #{platform,jdbcType=VARCHAR},
+      charge_type = #{chargeType,jdbcType=VARCHAR},
+      count_time = #{countTime,jdbcType=TIMESTAMP},
+      total_reg_user = #{totalRegUser,jdbcType=INTEGER},
+      total_reg_lender = #{totalRegLender,jdbcType=INTEGER},
+      lender_convert = #{lenderConvert,jdbcType=DECIMAL},
+      total_lender = #{totalLender,jdbcType=INTEGER},
+      total_lender_money = #{totalLenderMoney,jdbcType=DECIMAL},
+      avg_lender_money = #{avgLenderMoney,jdbcType=DECIMAL},
+      total_pay_user = #{totalPayUser,jdbcType=INTEGER},
+      total_pay_money = #{totalPayMoney,jdbcType=DECIMAL},
+      avg_pay_money = #{avgPayMoney,jdbcType=DECIMAL}
+    where statistics_id = #{statisticsId,jdbcType=INTEGER}
+  </update>
+  
+    <select id="getByPage" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	SELECT
+	'00:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 00 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+	<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+  	SELECT
+	'01:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 01 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+	<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'02:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 02 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+	<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'03:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 03 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'04:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 04 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'05:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 05 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'06:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 06 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'07:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 07 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'08:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 08 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'09:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 09 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+	UNION ALL
+	SELECT
+	'10:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 10 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'11:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 11 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'12:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 12 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'13:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 13 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'14:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 14 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'15:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 15 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'16:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 16 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'17:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 17 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'18:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 18 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'19:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 19 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'20:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 20 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'21:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 21 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'22:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 22 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+		UNION ALL
+	SELECT
+	'23:00' as timeFlag,
+	CONCAT(#{countTimeStart},'~',#{countTimeEnd}) flagDate,
+	<if test="platform != null and platform !=''">
+		s.platform,
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		s.charge_type,
+	</if>
+	<if test="category != null and category !=''">
+		s.category,
+	</if>
+	<if test="description != null and description !=''">
+		s.description,
+	</if>
+	
+	<if test="platform == null or platform ==''">
+		'全部' platform,
+	</if>
+	<if test="chargeType == null or chargeType ==''">
+		'全部' chargeType,
+	</if>
+	<if test="category == null or category ==''">
+		'全部' category,
+	</if>
+	<if test="description == null or description ==''">
+		'全部' description,
+	</if>
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE HOUR(s.count_time) = 23 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTimeStart != null  and countTimeEnd != null">
+		and  date(s.count_time) BETWEEN #{countTimeStart} AND #{countTimeEnd}
+	</if>
+  </select>
+ 
+  <select id="getCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+  SELECT COUNT(1) FROM
+  	(SELECT
+	s.count_time,
+	s.description,
+	s.category,
+	s.platform,
+	s.charge_type,
+	sum(s.total_reg_user) total_reg_user,sum(s.total_open_user) total_open_user,
+	sum(s.total_reg_lender) total_reg_lender,
+	sum(s.total_reg_lender)/sum(s.total_reg_user) lender_convert,
+	sum(s.total_lender) total_lender,
+	sum(s.total_lender_money) total_lender_money,
+	round(sum(s.total_lender_money)/sum(s.total_lender),2) avg_lender_money,
+	sum(s.total_pay_user) total_pay_user,
+	sum(s.total_pay_money) total_pay_money,
+	round(sum(s.total_pay_money)/sum(s.total_pay_user),2) avg_pay_money,
+	sum(s.fund_money) fund_money,
+	sum(s.fund_user) fund_user,
+	sum(s.fund_money) + sum(s.total_lender_money) sum_money,
+	sum(s.total_lender) + sum(s.fund_user) sum_user
+	from data_bi.sem_statistics s 
+  		WHERE 1=1 
+  	<if test="platform != null and platform !=''">
+		and s.platform = #{platform}
+	</if>
+	<if test="chargeType != null and chargeType !=''">
+		and s.charge_type = #{chargeType}
+	</if>
+	<if test="category != null and category !=''">
+		and s.category = #{category}
+	</if>
+	<if test="description != null and description !=''">
+		and s.description like concat(concat('%',#{description}),'%')
+	</if>
+		<if test="utmsource != null and utmsource !=''">
+		and s.source_name = #{utmsource}
+	</if>
+	<if test="countTime != null and countTime !=''">
+		and date(s.count_time) = #{countTime}
+	</if>
+	GROUP BY s.count_time
+	order by s.count_time
+	) C
+  </select>
+</mapper>

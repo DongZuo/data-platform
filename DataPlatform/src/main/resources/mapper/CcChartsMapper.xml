@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.CcChartsMapper" >
+  <resultMap id="BaseResultMap" type="com.yxb.cms.domain.vo.CcIndex" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="index_name" property="indexName" jdbcType="VARCHAR" />
+    <result column="index_sql" property="indexSql" jdbcType="VARCHAR" />
+    <result column="init_sql" property="initSql" jdbcType="VARCHAR" />
+    <result column="index_type" property="indexType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_name, index_name, init_sql,index_sql, index_type
+  </sql>
+ <select id="selectByUserNameList" resultMap="BaseResultMap" parameterType="com.yxb.cms.domain.vo.CcIndex" >
+    select 
+    <include refid="Base_Column_List" />
+    from cc_index
+    where user_name = #{userName,jdbcType=INTEGER}
+    and index_name = #{indexName,jdbcType=VARCHAR}
+    and index_type in ('line','bar','funnel')
+  </select>
+</mapper>

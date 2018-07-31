@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.CcIndexMapper" >
+  <resultMap id="BaseResultMap" type="com.yxb.cms.domain.vo.CcIndex" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="index_name" property="indexName" jdbcType="VARCHAR" />
+    <result column="index_sql" property="indexSql" jdbcType="VARCHAR" />
+     <result column="init_sql" property="initSql" jdbcType="VARCHAR" />
+    <result column="index_type" property="indexType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_name, index_name,init_sql,index_sql, index_type
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from cc_index
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+ <select id="selectByUserNameList" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from cc_index
+    where user_name = #{userName,jdbcType=INTEGER}
+    and index_type = 'index'
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from cc_index
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yxb.cms.domain.vo.CcIndex" >
+    insert into cc_index (id, user_name, index_name, init_sql,
+      index_sql, index_type)
+    values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{indexName,jdbcType=VARCHAR}, 
+       #{initSql,jdbcType=VARCHAR},#{indexSql,jdbcType=VARCHAR}, #{indexType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.yxb.cms.domain.vo.CcIndex" >
+    insert into cc_index
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userName != null" >
+        user_name,
+      </if>
+      <if test="indexName != null" >
+        index_name,
+      </if>
+       <if test="initSql != null" >
+        init_sql,
+      </if>
+      <if test="indexSql != null" >
+        index_sql,
+      </if>
+      <if test="indexType != null" >
+        index_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="indexName != null" >
+        #{indexName,jdbcType=VARCHAR},
+      </if>
+       <if test="initSql != null" >
+        #{init_sql,jdbcType=VARCHAR},
+      </if>
+      <if test="indexSql != null" >
+        #{index_sql,jdbcType=VARCHAR},
+      </if>
+      <if test="indexType != null" >
+        #{indexType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yxb.cms.domain.vo.CcIndex" >
+    update cc_index
+    <set >
+      <if test="userName != null" >
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="indexName != null" >
+        index_name = #{indexName,jdbcType=VARCHAR},
+      </if>
+      <if test="initSql != null" >
+        init_sql = #{initSql,jdbcType=VARCHAR},
+      </if>
+      <if test="indexSql != null" >
+        index_sql = #{indexSql,jdbcType=VARCHAR},
+      </if>
+      <if test="indexType != null" >
+        index_type = #{indexType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yxb.cms.domain.vo.CcIndex" >
+    update cc_index
+    set user_name = #{userName,jdbcType=VARCHAR},
+      index_name = #{indexName,jdbcType=VARCHAR},
+      init_sql = #{initSql,jdbcType=VARCHAR},
+      index_sql = #{indexSql,jdbcType=VARCHAR},
+      index_type = #{indexType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

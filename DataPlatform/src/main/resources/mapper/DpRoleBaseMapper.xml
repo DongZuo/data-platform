@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yxb.cms.dao.DpRoleBaseMapper">
+
+
+    <insert id="insertDpRole" >
+        INSERT INTO `dp_role_resources`
+        (
+        <trim suffixOverrides=",">
+                    <if test="roleId!=null">
+                        `roleId`,
+                    </if>
+                    <if test="icon!=null">
+                        `icon`,
+                    </if>
+                    <if test="key!=null">
+                        `key`,
+                    </if>
+                    <if test="name!=null">
+                        `name`,
+                    </if>
+        </trim>
+        )
+        VALUES
+        (
+        <trim suffixOverrides=",">
+                <if test="roleId!=null">
+                    #{roleId},
+                </if>
+                <if test="icon!=null">
+                    #{icon},
+                </if>
+                <if test="key!=null">
+                    #{key},
+                </if>
+                <if test="name!=null">
+                    #{name},
+                </if>
+        </trim>
+        )
+    </insert>
+
+
+
+
+    <update id="updateDpRole">
+        UPDATE `dp_role_resources`
+        SET
+        <trim suffixOverrides=",">
+            <if test="icon != null and icon!=''">
+                `icon` = #{icon},
+            </if>
+            <if test="key != null and key!=''">
+                `key` = #{key},
+            </if>
+            <if test="name != null and name!=''">
+                `name` = #{name},
+            </if>
+        </trim>
+        WHERE
+        <trim suffixOverrides="and">
+                `roleId` = #{roleId} and
+        </trim>
+    </update>
+
+
+
+    <resultMap type="com.yxb.cms.model.DpRole" id="DpRoleMap">
+        <result property="roleId" column="roleId"/>
+        <result property="icon" column="icon"/>
+        <result property="key" column="key"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+
+    <select id="queryDpRole" resultMap="DpRoleMap">
+        select
+        <include refid="baseResult"></include>
+        from  `dp_role_resources`
+        <trim prefix="where" suffixOverrides="and | or">
+            <if test="roleId != null and roleId!=''">
+                `roleId` = #{roleId} and
+            </if>
+            <if test="icon != null and icon!=''">
+                `icon` = #{icon} and
+            </if>
+            <if test="key != null and key!=''">
+                `key` = #{key} and
+            </if>
+            <if test="name != null and name!=''">
+                `name` = #{name} and
+            </if>
+            <if test = "(_parameter instanceof com.yxb.cms.model.DpRole$QueryBuilder) == true">
+                <if test="roleIdList != null">
+                    `roleId` in
+                    <foreach collection="roleIdList" close=")" open="(" separator="," item="item">
+                        #{item}
+                    </foreach> and
+                </if>
+                <if test ="fuzzyRoleId!=null and fuzzyRoleId.size()>0">
+                    (
+                    <foreach collection="fuzzyRoleId"  separator="or" item="item">
+                        `RoleId` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyRoleId!=null and rightFuzzyRoleId.size()>0">
+                    (
+                    <foreach collection="rightFuzzyRoleId"  separator="or" item="item">
+                        `RoleId` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test="iconList != null">
+                    `icon` in
+                    <foreach collection="iconList" close=")" open="(" separator="," item="item">
+                        #{item}
+                    </foreach> and
+                </if>
+                <if test ="fuzzyIcon!=null and fuzzyIcon.size()>0">
+                    (
+                    <foreach collection="fuzzyIcon"  separator="or" item="item">
+                        `Icon` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyIcon!=null and rightFuzzyIcon.size()>0">
+                    (
+                    <foreach collection="rightFuzzyIcon"  separator="or" item="item">
+                        `Icon` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test="keyList != null">
+                    `key` in
+                    <foreach collection="keyList" close=")" open="(" separator="," item="item">
+                        #{item}
+                    </foreach> and
+                </if>
+                <if test ="fuzzyKey!=null and fuzzyKey.size()>0">
+                    (
+                    <foreach collection="fuzzyKey"  separator="or" item="item">
+                        `Key` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyKey!=null and rightFuzzyKey.size()>0">
+                    (
+                    <foreach collection="rightFuzzyKey"  separator="or" item="item">
+                        `Key` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test="nameList != null">
+                    `name` in
+                    <foreach collection="nameList" close=")" open="(" separator="," item="item">
+                        #{item}
+                    </foreach> and
+                </if>
+                <if test ="fuzzyName!=null and fuzzyName.size()>0">
+                    (
+                    <foreach collection="fuzzyName"  separator="or" item="item">
+                        `Name` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyName!=null and rightFuzzyName.size()>0">
+                    (
+                    <foreach collection="rightFuzzyName"  separator="or" item="item">
+                        `Name` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+            </if>
+        </trim>
+    </select>
+
+    <select id="queryDpRoleLimit1" resultMap="DpRoleMap">
+        select
+        <include refid="baseResult"></include>
+        from  `dp_role_resources`
+        <trim prefix="where" suffixOverrides="and | or">
+            <if test="roleId != null and roleId!=''">
+                `roleId` = #{roleId} and
+            </if>
+            <if test="icon != null and icon!=''">
+                `icon` = #{icon} and
+            </if>
+            <if test="key != null and key!=''">
+                `key` = #{key} and
+            </if>
+            <if test="name != null and name!=''">
+                `name` = #{name} and
+            </if>
+            <if test = "(_parameter instanceof com.yxb.cms.model.DpRole$QueryBuilder) == true">
+                    <if test="roleIdList != null">
+                        `roleId` in
+                        <foreach collection="roleIdList" close=")" open="(" separator="," item="item">
+                            #{item}
+                        </foreach> and
+                    </if>
+                <if test ="fuzzyRoleId!=null and fuzzyRoleId.size()>0">
+                    (
+                    <foreach collection="fuzzyRoleId"  separator="or" item="item">
+                        `RoleId` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyRoleId!=null and rightFuzzyRoleId.size()>0">
+                    (
+                    <foreach collection="rightFuzzyRoleId"  separator="or" item="item">
+                        `RoleId` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                    <if test="iconList != null">
+                        `icon` in
+                        <foreach collection="iconList" close=")" open="(" separator="," item="item">
+                            #{item}
+                        </foreach> and
+                    </if>
+                <if test ="fuzzyIcon!=null and fuzzyIcon.size()>0">
+                    (
+                    <foreach collection="fuzzyIcon"  separator="or" item="item">
+                        `Icon` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyIcon!=null and rightFuzzyIcon.size()>0">
+                    (
+                    <foreach collection="rightFuzzyIcon"  separator="or" item="item">
+                        `Icon` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                    <if test="keyList != null">
+                        `key` in
+                        <foreach collection="keyList" close=")" open="(" separator="," item="item">
+                            #{item}
+                        </foreach> and
+                    </if>
+                <if test ="fuzzyKey!=null and fuzzyKey.size()>0">
+                    (
+                    <foreach collection="fuzzyKey"  separator="or" item="item">
+                        `Key` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyKey!=null and rightFuzzyKey.size()>0">
+                    (
+                    <foreach collection="rightFuzzyKey"  separator="or" item="item">
+                        `Key` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                    <if test="nameList != null">
+                        `name` in
+                        <foreach collection="nameList" close=")" open="(" separator="," item="item">
+                            #{item}
+                        </foreach> and
+                    </if>
+                <if test ="fuzzyName!=null and fuzzyName.size()>0">
+                    (
+                    <foreach collection="fuzzyName"  separator="or" item="item">
+                        `Name` like concat('%',#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+                <if test ="rightFuzzyName!=null and rightFuzzyName.size()>0">
+                    (
+                    <foreach collection="rightFuzzyName"  separator="or" item="item">
+                        `Name` like concat(#{item},'%')
+                    </foreach>
+                    ) and
+                </if>
+            </if>
+        </trim>
+        limit 1
+    </select>
+
+    <sql id="allResult">
+        <trim suffixOverrides=",">
+        `roleId`,
+        `icon`,
+        `key`,
+        `name`,
+        </trim>
+    </sql>
+
+
+
+    <sql id="baseResult">
+        <trim suffixOverrides=",">
+            <if test = "(_parameter instanceof com.yxb.cms.model.DpRole$QueryBuilder) == true">
+
+                <if test="fetchFields==null">
+                    <include refid="allResult"></include>
+                </if>
+                <if test="fetchFields!=null">
+                    <if test="fetchFields.AllFields !=null">
+                        <include refid="allResult"></include>
+                    </if>
+                    <if test="fetchFields.AllFields ==null and fetchFields.fetchFields==null and fetchFields.excludeFields==null and fetchFields.otherFields==null">
+                        <include refid="allResult"></include>
+                    </if>
+                    <if test="fetchFields.AllFields==null and fetchFields.fetchFields!=null">
+                    <if test="fetchFields.fetchFields.roleId==true">
+                        `roleId`,
+                    </if>
+                    <if test="fetchFields.fetchFields.icon==true">
+                        `icon`,
+                    </if>
+                    <if test="fetchFields.fetchFields.key==true">
+                        `key`,
+                    </if>
+                    <if test="fetchFields.fetchFields.name==true">
+                        `name`,
+                    </if>
+                    </if>
+                    <if test="fetchFields.AllFields==null and fetchFields.excludeFields!=null">
+                    <if test="fetchFields.excludeFields.roleId==null">
+                        `roleId`,
+                    </if>
+                    <if test="fetchFields.excludeFields.icon==null">
+                        `icon`,
+                    </if>
+                    <if test="fetchFields.excludeFields.key==null">
+                        `key`,
+                    </if>
+                    <if test="fetchFields.excludeFields.name==null">
+                        `name`,
+                    </if>
+                    </if>
+                    <if test="fetchFields.otherFields!=null and fetchFields.otherFields.size>0">
+                        <foreach collection="fetchFields.otherFields" index="index" item="item" separator=",">
+                        `#{item}`
+                        </foreach>
+                    </if>
+                </if>
+            </if>
+            <if test="(_parameter instanceof com.yxb.cms.model.DpRole$QueryBuilder) == false" >
+                <include refid="allResult"></include>
+            </if>
+
+        </trim>
+    </sql>
+
+
+</mapper>

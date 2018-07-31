@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.input.FeeAccountBalanceMapper" >
+  <resultMap id="BaseResultMap" type="com.yxb.cms.model.input.FeeAccountBalance" >
+    <id column="date_" property="date" jdbcType="DATE" />
+    <id column="dept" property="dept" jdbcType="INTEGER" />
+    <result column="recharge_amount" property="rechargeAmount" jdbcType="DECIMAL" />
+    <result column="coupon_amount" property="couponAmount" jdbcType="DECIMAL" />
+    <result column="back_money" property="backMoney" jdbcType="DECIMAL" />
+    <result column="balance" property="balance" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    date_, dept, recharge_amount, coupon_amount, back_money, balance
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    date_, dept, sum(recharge_amount) as recharge_amount,
+     sum(coupon_amount) as coupon_amount,
+      sum(back_money) as back_money,
+       sum(balance) as balance
+    from data_bi.fee_account_balance
+    where date_ BETWEEN #{dateStart,jdbcType=DATE} AND #{dateEnd,jdbcType=DATE}
+      <if test="dept != null  and dept != ''" >
+       and dept = #{dept,jdbcType=INTEGER}
+      </if>
+      group by date_
+      order by date_ desc
+      limit #{offset,jdbcType=INTEGER}, #{rows,jdbcType=INTEGER}
+  </select>
+  <select id="getCount" resultType="java.lang.Integer" parameterType="java.util.Map" >
+      select 
+    count(*) 
+    from data_bi.fee_account_balance
+    where date_ BETWEEN #{dateStart,jdbcType=DATE} AND #{dateEnd,jdbcType=DATE}
+    <if test="dept != null  and dept != ''" >
+       and dept = #{dept,jdbcType=INTEGER}
+      </if>
+    group by date_
+    limit 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.yxb.cms.model.input.FeeAccountBalanceKey" >
+    delete from fee_account_balance
+    where date_ BETWEEN #{dateStart,jdbcType=DATE} AND #{dateEnd,jdbcType=DATE}
+      and dept = #{dept,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.yxb.cms.model.input.FeeAccountBalance" >
+    insert into fee_account_balance (date_, dept, recharge_amount, 
+      coupon_amount, back_money, balance
+      )
+    values (#{date,jdbcType=DATE}, #{dept,jdbcType=INTEGER}, #{rechargeAmount,jdbcType=DECIMAL}, 
+      #{couponAmount,jdbcType=DECIMAL}, #{backMoney,jdbcType=DECIMAL}, #{balance,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.yxb.cms.model.input.FeeAccountBalance" >
+    insert into fee_account_balance
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="date != null" >
+        date_,
+      </if>
+      <if test="dept != null" >
+        dept,
+      </if>
+      <if test="rechargeAmount != null" >
+        recharge_amount,
+      </if>
+      <if test="couponAmount != null" >
+        coupon_amount,
+      </if>
+      <if test="backMoney != null" >
+        back_money,
+      </if>
+      <if test="balance != null" >
+        balance,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="date != null" >
+        #{date,jdbcType=DATE},
+      </if>
+      <if test="dept != null" >
+        #{dept,jdbcType=INTEGER},
+      </if>
+      <if test="rechargeAmount != null" >
+        #{rechargeAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="couponAmount != null" >
+        #{couponAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="backMoney != null" >
+        #{backMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.yxb.cms.model.input.FeeAccountBalance" >
+    update fee_account_balance
+    <set >
+      <if test="rechargeAmount != null" >
+        recharge_amount = #{rechargeAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="couponAmount != null" >
+        coupon_amount = #{couponAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="backMoney != null" >
+        back_money = #{backMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="balance != null" >
+        balance = #{balance,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where date_ = #{date,jdbcType=DATE}
+      and dept = #{dept,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.yxb.cms.model.input.FeeAccountBalance" >
+    update fee_account_balance
+    set recharge_amount = #{rechargeAmount,jdbcType=DECIMAL},
+      coupon_amount = #{couponAmount,jdbcType=DECIMAL},
+      back_money = #{backMoney,jdbcType=DECIMAL},
+      balance = #{balance,jdbcType=DECIMAL}
+    where date_ = #{date,jdbcType=DATE}
+      and dept = #{dept,jdbcType=INTEGER}
+  </update>
+</mapper>
