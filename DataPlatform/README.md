@@ -1,22 +1,17 @@
-简介
+Introduce
 -----------------------------------
-采用SpringBoot构建整个项目框架,apacheShiro权限验证，mybatis+druid数据持久化。
-前端所在路径:DataPlatform/src/main/resources/static/  
+The project used SpringBoot as backend framwork, used apacheShiro for user authentication and authorization.Mybatis and Druid are used for data ORM and persistance.
+Front end source code path : DataPlatform/src/main/resources/static/  
 
-功能说明
+Main Features
 -----------------------------------
 
-* 登陆验证
-* 日报查询下载
-* MySQL <-> Hive 数据传输 
-* 渠道管理
-* 数据回溯
-* 预算
-* 数据回溯
-* 指标管理
-* 接口管理
-* 元数据管理
-* 权限管理 
+* User Role Management
+* Report Download
+* MySQL <-> Hive Data transformation
+* Data bacatracking
+* Indicator Management
+* Interface Management
 
 
 使用说明
@@ -37,57 +32,56 @@
 ```
 ├─main
 │  │
-│  ├──conf---------------项目环境配置文件
-│  │   ├─beta ------测试环境配置文件
-│  │   ├─prd -------生产环境配置文件
+│  ├──conf--------------Main configuration
+│  │   ├─beta ------test environment config
+│  │   ├─prd -------product environment config
 │  │
 │  ├──java
 │  │   │
-│  │   └─com.yxb.cms----------------项目主代码
+│  │   └─com.yxb.cms----------------project code
 │  │             │
-│  │             ├─architect----------------项目装配目录
+│  │             ├─architect
 │  │             │    │
-│  │             │    ├─conf----------------项目配置路径
+│  │             │    ├─conf
 │  │             │    │
-│  │             │    ├─constant------------项目常量枚举路径
+│  │             │    ├─constant
 │  │             │    │
-│  │             │    ├─filter--------------项目过滤器路径
+│  │             │    ├─filter
 │  │             │    │
-│  │             │    ├─interceptor---------项目拦截器路径
+│  │             │    ├─interceptor
 │  │             │    │
-│  │             │    ├─properties----------项目属性文件读取路径
+│  │             │    ├─properties
 │  │             │    │
-│  │             │    ├─realm---------------自定义shiroRealm路径
+│  │             │    ├─realm
 │  │             │    │
-│  │             │    ├─utils----------------项目帮助类路径
+│  │             │    ├─utils
 │  │             │
-│  │             ├─controller----------------项目controller路径
+│  │             ├─controller
 │  │             │
-│  │             ├─dao-----------------------项目dao层路径
+│  │             ├─dao
 │  │             │
-│  │             ├─domain--------------------项目domain层路径
+│  │             ├─domain
 │  │             │
-│  │             ├─model--------------------项目data model路径
+│  │             ├─model
 │  │             │
-│  │             ├─service-------------------项目service层路径
+│  │             ├─service
 │  │             │
-│  │             └─Application ------springBoot 启动类
+│  │             └─Application
 │  │
-│  ├─resources----------------项目资源文件
+│  ├─resources
 │  │     │
-│  │     ├─mapper----------------mybatis映射文件路径
+│  │     ├─mapper
 │  │     │
-│  │     ├─application.properties-----springBoot核心配置
+│  │     ├─application.properties
 │  │     │
-│  │     ├─ehcache-shiro.xml----shiro缓存配置
+│  │     ├─ehcache-shiro.xml
 │  │     │
-│  │     ├─log4j.properties------log4j配置
+│  │     ├─log4j.properties
 │  │     │
-│  │     ├─mybatis-config.xml-------mybatis配置
+│  │     ├─mybatis-config.xml
 │  │
 │  │
-│  └─webapp----------------web页面和静态资源存放的目录 （纯后端项目不需要此package）
+│  └─webapp
 
-│
-│
+
 ```
