@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class BacktrackController extends BasicController {
 
     /**
-     *  数据回溯
+     *  
      * @param request 请求body中包含
      *    “database”:"ods",-------------需要回溯的数据库
      *    “endTime”:"2018-06-06",-------回溯的结束时间
@@ -134,8 +134,6 @@ public class BacktrackController extends BasicController {
             //remove marker file
             boolean deleted = false;
             if (percent == 100 && f.exists()){
-                //如果用户没有请求直到100%，用户退出，那么如何清除logfile和markerfile呢？
-                //先不清除，直到下一个用户请求，才返回100%，5秒后再次执行脚本重新开始回溯。
                 deleted = f.delete();
                 if(logFile.exists())
                     logFile.delete();
