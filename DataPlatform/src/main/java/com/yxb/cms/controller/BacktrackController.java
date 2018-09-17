@@ -30,18 +30,6 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("dataBack")
 public class BacktrackController extends BasicController {
 
-    /**
-     *  
-     * @param request 请求body中包含
-     *    “database”:"ods",-------------需要回溯的数据库
-     *    “endTime”:"2018-06-06",-------回溯的结束时间
-     *    “startTime”:"2018-06-06",-----回溯的开始时间
-     *    “tableOption”:"table2",-------需要回溯的表
-     * @return
-     *    "percent":80,--------------------------------------------------已经回溯的百分比；number类型
-     *    "completeDate":["2018-05-27","2018-05-28","2018-05-29"],-------回溯已经完成的时间
-     *    "failureDate":["2018-05-31","2018-06-01","2018-06-02","2018-06-03"]-----------回溯失败的时间
-     */
     @RequestMapping("/postDataBackLogList")
     @ResponseBody
     @SystemControllerLog(description="数据回溯")
